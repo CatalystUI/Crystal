@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project>
+
+    <!-- Project Properties -->
+    <PropertyGroup>
+        <!-- Build Properties -->
+        <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+
+        <!-- Editor Properties -->
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <!-- NativeAOT Declarations -->
+        <PublishAot>true</PublishAot>
+        <IsAotCompatible>true</IsAotCompatible>
+
+        <!-- Trimming Declarations -->
+        <PublishTrimmed>true</PublishTrimmed>
+        <TrimMode>full</TrimMode>
+
+        <!-- Assembly Signing -->
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>$(MSBuildProjectName).snk</AssemblyOriginatorKeyFile>
+
+        <!-- Use CatalystUI Optimizations -->
+        <UseCatalystUIOptimizations>true</UseCatalystUIOptimizations>
+
+        <!-- Common Metadata -->
+        <Version>$(VersionPrefix)$(VersionSuffix)</Version>
+        <Company>Visual Fire Development</Company>
+        <Copyright>© 2024–2025 FireController#1847 — All Rights Reserved</Copyright>
+        <PackageProjectUrl>https://github.com/CatalystUI/Crystal</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/CatalystUI/Crystal</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <NeutralLanguage>en</NeutralLanguage>
+        <PackageLicenseUrl>https://github.com/CatalystUI/Crystal/LICENSE</PackageLicenseUrl>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <!-- CatalystUI Optimizations -->
+    <PropertyGroup Condition="'$(UseCatalystUIOptimizations)' == 'true'">
+        <EventSourceSupport>false</EventSourceSupport>
+        <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
+        <MetricsSupport>false</MetricsSupport>
+        <StackTraceSupport>false</StackTraceSupport>
+        <UseNativeHttpHandler>true</UseNativeHttpHandler>
+        <UseSystemResourceKeys>true</UseSystemResourceKeys>
+        <XmlResolverIsNetworkingEnabledByDefault>false</XmlResolverIsNetworkingEnabledByDefault>
+    </PropertyGroup>
+
+    <!-- Output Information -->
+    <PropertyGroup>
+        <OutputInfoFileExtension Condition="'$(OutputType)' == 'Exe' and $([MSBuild]::IsOSPlatform('Windows'))">.exe</OutputInfoFileExtension>
+        <!--suppress CheckTagEmptyBody -->
+        <OutputInfoFileExtension Condition="'$(OutputType)' == 'Exe' and !$([MSBuild]::IsOSPlatform('Windows'))"></OutputInfoFileExtension>
+        <OutputInfoFileExtension Condition="'$(OutputType)' != 'Exe'">.dll</OutputInfoFileExtension>
+        <OutputInfoAOT Condition="$(PublishAot)">🔥 You know it.</OutputInfoAOT>
+        <OutputInfoAOT Condition="!$(PublishAot)">🕶️ Going for compat.</OutputInfoAOT>
+        <OutputInfoSupportsRuntimeMod Condition="!$(MetadataUpdaterSupport)">false (✅ Good! Supports NativeAOT)</OutputInfoSupportsRuntimeMod>
+        <OutputInfoSupportsRuntimeMod Condition="$(MetadataUpdaterSupport)">true (❌ Bad! Does not support NativeAOT)</OutputInfoSupportsRuntimeMod>
+        <NETCoreSdkVersion Condition="'$(NETCoreSdkVersion)' == ''">$([System.Environment]::GetEnvironmentVariable('DOTNET_SDK_VERSION'))</NETCoreSdkVersion>
+    </PropertyGroup>
+
+    <!-- Building Output Information -->
+    <Target Name="HelpfulBuildInfo" AfterTargets="Build">
+        <Message Importance="high" Text="$([System.Environment]::NewLine)=============================================================================$([System.Environment]::NewLine)" />
+        <Message Importance="high" Text=" ██████╗ █████╗ ████████╗ █████╗ ██╗  ██╗   ██╗███████╗████████╗██╗   ██╗██╗" />
+        <Message Importance="high" Text="██╔════╝██╔══██╗╚══██╔══╝██╔══██╗██║  ╚██╗ ██╔╝██╔════╝╚══██╔══╝██║   ██║██║" />
+        <Message Importance="high" Text="██║     ███████║   ██║   ███████║██║   ╚████╔╝ ███████╗   ██║   ██║   ██║██║" />
+        <Message Importance="high" Text="██║     ██╔══██║   ██║   ██╔══██║██║    ╚██╔╝  ╚════██║   ██║   ██║   ██║██║" />
+        <Message Importance="high" Text="╚██████╗██║  ██║   ██║   ██║  ██║███████╗██║   ███████║   ██║   ╚██████╔╝██║" />
+        <Message Importance="high" Text=" ╚═════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝   ╚══════╝   ╚═╝    ╚═════╝ ╚═╝" />
+        <Message Importance="high" Text="$([System.Environment]::NewLine)=============================================================================$([System.Environment]::NewLine)" />
+        <Message Importance="high" Text="                   ✦✦ Built $(AssemblyName)$(OutputInfoFileExtension) ✦✦$([System.Environment]::NewLine)" />
+        <Message Importance="high" Text="🔧 Build Configuration => $(Configuration)" />
+        <Message Importance="high" Text="🧱 MSBuild Version => $(MSBuildVersion)" />
+        <Message Importance="high" Text="🛠️ .NET SDK Version => $(NETCoreSdkVersion)" />
+        <Message Importance="high" Text="🧾 C# Language Version => $(LangVersion)" />
+        <Message Importance="high" Text="💻 Platform => $(Platform)" />
+        <Message Importance="high" Text="📁 Output Path => $(OutputPath)" />
+        <Message Importance="high" Text="📦 Trimming Enabled => $(PublishTrimmed)" />
+        <Message Importance="high" Text="🧨 Allow Unsafe Code => $(AllowUnsafeBlocks)" />
+        <Message Importance="high" Text="📡 Runtime Modification Support => $(OutputInfoSupportsRuntimeMod)" />
+        <Message Importance="high" Text="$([System.Environment]::NewLine)=============================================================================$([System.Environment]::NewLine)" />
+    </Target>
+
+    <!-- Publishing Output Information -->
+    <Target Name="HelpfulPublishInfo" AfterTargets="Publish">
+        <Message Importance="high" Text="$([System.Environment]::NewLine)=============================================================================$([System.Environment]::NewLine)" />
+        <Message Importance="high" Text=" ██████╗ █████╗ ████████╗ █████╗ ██╗  ██╗   ██╗███████╗████████╗██╗   ██╗██╗" />
+        <Message Importance="high" Text="██╔════╝██╔══██╗╚══██╔══╝██╔══██╗██║  ╚██╗ ██╔╝██╔════╝╚══██╔══╝██║   ██║██║" />
+        <Message Importance="high" Text="██║     ███████║   ██║   ███████║██║   ╚████╔╝ ███████╗   ██║   ██║   ██║██║" />
+        <Message Importance="high" Text="██║     ██╔══██║   ██║   ██╔══██║██║    ╚██╔╝  ╚════██║   ██║   ██║   ██║██║" />
+        <Message Importance="high" Text="╚██████╗██║  ██║   ██║   ██║  ██║███████╗██║   ███████║   ██║   ╚██████╔╝██║" />
+        <Message Importance="high" Text=" ╚═════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝   ╚══════╝   ╚═╝    ╚═════╝ ╚═╝" />
+        <Message Importance="high" Text="$([System.Environment]::NewLine)=============================================================================$([System.Environment]::NewLine)" />
+        <Message Importance="high" Text="                  ✦✦ Published $(AssemblyName)$(OutputInfoFileExtension) ✦✦$([System.Environment]::NewLine)" />
+        <Message Importance="high" Text="♨️ Using NativeAOT? => $(OutputInfoAOT)"/>
+        <Message Importance="high" Text="🔧 Build Configuration => $(Configuration)" />
+        <Message Importance="high" Text="💻 Runtime Identifier => $(RuntimeIdentifier)" />
+        <Message Importance="high" Text="📤 Self-Contained => $(SelfContained)" />
+        <Message Importance="high" Text="📦 Publish Single File => $(PublishSingleFile)" />
+        <Message Importance="high" Text="📂 Output Directory => $(PublishDir)" />
+        <Message Importance="high" Text="$([System.Environment]::NewLine)=============================================================================$([System.Environment]::NewLine)" />
+    </Target>
+
+</Project>
