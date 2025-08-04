@@ -16,6 +16,7 @@ param (
     [string]$projectName
 )
 
+
 # --- PowerShell 7+ Required ---
 if ($PSVersionTable.PSVersion.Major -lt 7) {
     Write-Host "PowerShell 7+ is required. Attempting to relaunch..."
@@ -56,6 +57,7 @@ if ($PSVersionTable.PSVersion.Major -lt 7) {
 }
 Write-Host "Using PowerShell version: $($PSVersionTable.PSVersion)"
 
+
 # --- Find Project ---
 $projectPath = Get-ChildItem -Recurse -Filter "$projectName.csproj" -File | Select-Object -First 1
 if (-not $projectPath) {
@@ -64,6 +66,7 @@ if (-not $projectPath) {
 }
 $projectLowerName = $projectPath.Name.ToLowerInvariant() -replace '\.csproj$', ''
 Write-Host "Found project: `e[32m$($projectPath.Name)`e[0m"
+
 
 # --- Get Project Dependencies ---
 function Get-ReferencedLocalProjects {
@@ -104,17 +107,6 @@ function Get-ReferencedLocalProjects {
 }
 
 
-# --- Pack Dependencies First ---
-$referencedProjects = Get-ReferencedLocalProjects $projectPath.FullName
-foreach ($depPath in $referencedProjects) {
-    $depName = [System.IO.Path]::GetFileNameWithoutExtension($depPath)
-    Write-Host "`n🧩 Found referenced project: `e[36m$depName`e[0m — publishing it first..."
-    & $PSCommandPath $depName
-    Write-Host "`n🔄 Restoring after '$depName' to update NuGet resolution for main project..."
-    dotnet restore $projectPath.FullName
-}
-
-
 # --- Prepare Local Repository ---
 $nugetPath = Join-Path $HOME ".catalystui/crystal"
 $nugetSource = "CatalystUI Crystal Local Repository"
@@ -125,6 +117,7 @@ if (-not (Test-Path $nugetPath)) {
 } else {
     Write-Host "Using existing local NuGet repository at: `e[32m$nugetPath`e[0m"
 }
+
 
 # --- Delete Existing Files ---
 if (Test-Path $nugetPath) {
@@ -145,6 +138,7 @@ foreach ($path in $paths) {
     }
 }
 
+
 # --- Register Local Repository ---
 $existingSource = Get-PackageSource -Name $nugetSource -ErrorAction Silently
 if (-not $existingSource) {
@@ -153,6 +147,55 @@ if (-not $existingSource) {
 } else {
     Write-Host "Local NuGet source already registered: `e[32m$nugetSource`e[0m"
 }
+
+
+# --- Pack Dependencies First ---
+$published = [System.Collections.Generic.HashSet[string]]::new()
+$queue = New-Object System.Collections.Generic.Queue[System.String]
+$queue.Enqueue($projectPath.FullName)
+
+while ($queue.Count -gt 0) {
+    $currentProjectPath = $queue.Dequeue()
+    $currentProjectName = [System.IO.Path]::GetFileNameWithoutExtension($currentProjectPath)
+
+    if ($published.Contains($currentProjectName)) {
+        continue
+    }
+
+    $dependencies = Get-ReferencedLocalProjects $currentProjectPath
+    $unpublishedDeps = $dependencies | Where-Object {
+        $depName = [System.IO.Path]::GetFileNameWithoutExtension($_)
+        -not $published.Contains($depName)
+    }
+
+    if ($unpublishedDeps.Count -gt 0) {
+        # Enqueue current again after its deps
+        $queue.Enqueue($currentProjectPath)
+        foreach ($dep in $unpublishedDeps) {
+            $queue.Enqueue($dep)
+        }
+        continue
+    }
+
+    if ($currentProjectName -ne $projectName) {
+        Write-Host "`n🧩 Publishing dependency: `e[36m$currentProjectName`e[0m"
+        dotnet clean $currentProjectPath
+        dotnet build $currentProjectPath -c Release
+        dotnet pack $currentProjectPath -c Release -o $nugetPath -v:diag
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "❌ Failed to pack '$currentProjectName'. Exiting."
+            exit $LASTEXITCODE
+        }
+        Write-Host "✅ Packed '$currentProjectName'"
+    }
+
+    $published.Add($currentProjectName) | Out-Null
+    if ($currentProjectName -ne $projectName) {
+        Write-Host "`n🔄 Restoring for dependent resolution..."
+        dotnet restore $projectPath.FullName
+    }
+}
+
 
 # --- Build and Pack Project ---
 Write-Host "Building and packing project: `e[32m$($projectPath.Name)`e[0m"
@@ -164,5 +207,10 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "Packing failed. Exiting."
     exit $LASTEXITCODE
 }
+
+
+# --- Restore for Dependency Resolution ---
+Write-Host "`n🔄 Restoring project to ensure all dependencies are resolved..."
+dotnet restore
 
 Write-Host "`n✅ Successfully published '$projectName' to local NuGet source '$nugetSource'"
