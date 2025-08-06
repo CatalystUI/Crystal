@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- Project Properties -->
+    <PropertyGroup>
+        <!-- Build Properties -->
+        <RootNamespace>Crystal.Models.CrystalWindow</RootNamespace>
+
+        <!-- Metadata -->
+        <Title>Crystal Model — Crystal Window</Title>
+        <VersionPrefix>1.0.0</VersionPrefix>
+        <VersionSuffix>alpha.1</VersionSuffix>
+        <Authors>FireController#1847</Authors>
+        <Description>Crystal Window API Model provided by the Crystal library based on CatalystUI.</Description>
+        <PackageTags>Crystal,CatalystUI,window,windowing,model</PackageTags>
+    </PropertyGroup>
+
+    <!-- NuGet Dependencies -->
+    <ItemGroup>
+        <PackageReference Include="Crystal.Core" Version="1.0.0-alpha.1" />
+    </ItemGroup>
+
+</Project>
