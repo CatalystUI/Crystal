@@ -1,52 +1,22 @@
 <#
-#####################################
- This file is public domain.
- It does not fall under the same licensing as the rest of the project.
- Feel free to use it in your project.
+##########################################################################
+CatalystUI - Cross-Platform UI Library
+Copyright (c) 2025 FireController#1847. All rights reserved.
 
- - FireController#1847
-#####################################
+This file is part of CatalystUI and is provided as part of an early-access release.
+Unauthorized commercial use, distribution, or modification is strictly prohibited.
+
+This software is not open source and is not publicly licensed.
+For full terms, see the LICENSE and NOTICE files in the project root.
+##########################################################################
 #>
 
-# --- PowerShell 7+ Required ---
-if ($PSVersionTable.PSVersion.Major -lt 7) {
-    Write-Host "PowerShell 7+ is required. Attempting to relaunch..."
+param(
+    [switch]$verbose
+)
 
-    # Try to find pwsh in PATH
-    $pwsh = Get-Command pwsh -ErrorAction SilentlyContinue
-
-    # If not found in PATH, try known locations
-    if (-not $pwsh) {
-        $knownPaths = @(
-            "$env:ProgramFiles\PowerShell\7\pwsh.exe",
-            "$env:ProgramFiles(x86)\PowerShell\7\pwsh.exe",
-            "$env:LOCALAPPDATA\Microsoft\PowerShell\7\pwsh.exe"
-        )
-        $pwsh = $knownPaths | Where-Object { Test-Path $_ } | Select-Object -First 1
-    } else {
-        $pwsh = $pwsh.Source
-    }
-    if ($pwsh) {
-        Write-Host "Relaunching script in PowerShell 7..."
-        Start-Process -FilePath $pwsh -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$($MyInvocation.MyCommand.Definition)`""
-        $failed = $false
-    } else {
-        Write-Host "PowerShell 7 not found in PATH or common locations."
-        Write-Host "Download it here: https://aka.ms/powershell"
-        $failed = $true
-    }
-
-    Write-Host "`nFor a better script experience, install PowerShell 7+ and ensure your Visual Studio is configured to use it."
-    Write-Host "Download PowerShell 7+: https://aka.ms/powershell"
-    Write-Host "Configure Visual Studio to use PowerShell 7+: https://stackoverflow.com/a/76045797/6472449`n"
-
-    if ($failed) {
-        exit 1
-    } else {
-        exit 0
-    }
-}
-Write-Host "Using PowerShell version: $($PSVersionTable.PSVersion)"
+# Save the initial working directory
+$InitialCwd = Get-Location
 
 # Find the signing tool
 $sn = Get-Command sn -ErrorAction SilentlyContinue
@@ -107,24 +77,33 @@ if (-not $sn) {
     }
     exit 1
 }
-Write-Host "Using sn from: $sn"
-Write-Host
+$resolvedSn = (Get-Command $sn).Source
+Write-Host "Using sn from: $resolvedSn"
 
-
-# Get the solution directory (current script path)
-$SolutionDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+# Get the solution directory (set to ../Crystal relative to script)
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$SolutionDir = Join-Path $ScriptDir ".." | Join-Path -ChildPath "Crystal" | Resolve-Path -ErrorAction Stop
 Set-Location $SolutionDir
 
 # Recursively find all .csproj files and create .snk files matching the base name
-Get-ChildItem -Path . -Recurse -Filter *.csproj | ForEach-Object {
-    $CsprojFile = $_
-    $ProjectDir = Split-Path $CsprojFile.FullName -Parent
-    $BaseName = [System.IO.Path]::GetFileNameWithoutExtension($CsprojFile.Name)
-    $SnkPath = Join-Path $ProjectDir "$BaseName.snk"
-    if (Test-Path $SnkPath) {
-        Write-Host "Skipping $BaseName — SNK already exists."
-    } else {
-        Write-Host "Creating SNK for $BaseName..."
-        sn -k $SnkPath
+try {
+    Get-ChildItem -Path . -Recurse -Filter *.csproj | ForEach-Object {
+        $CsprojFile = $_
+        $ProjectDir = Split-Path $CsprojFile.FullName -Parent
+        $BaseName = [System.IO.Path]::GetFileNameWithoutExtension($CsprojFile.Name)
+        $SnkPath = Join-Path $ProjectDir "$BaseName.snk"
+        if (Test-Path $SnkPath) {
+            Write-Host "Skipping $BaseName — `e[31mSNK already exists.`e[0m"
+        } else {
+            Write-Host "Creating SNK for $BaseName..."
+            if ($verbose) {
+                sn -k $SnkPath
+            } else {
+                sn -k $SnkPath > $null 2>&1
+            }
+        }
     }
+} finally {
+    # Always return to the initial working directory
+    Set-Location $InitialCwd
 }

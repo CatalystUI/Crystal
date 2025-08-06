@@ -8,46 +8,11 @@
 #####################################
 #>
 
-# --- PowerShell 7+ Required ---
-if ($PSVersionTable.PSVersion.Major -lt 7) {
-    Write-Host "PowerShell 7+ is required. Attempting to relaunch..."
-
-    # Try to find pwsh in PATH
-    $pwsh = Get-Command pwsh -ErrorAction SilentlyContinue
-
-    # If not found in PATH, try known locations
-    if (-not $pwsh) {
-        $knownPaths = @(
-            "$env:ProgramFiles\PowerShell\7\pwsh.exe",
-            "$env:ProgramFiles(x86)\PowerShell\7\pwsh.exe",
-            "$env:LOCALAPPDATA\Microsoft\PowerShell\7\pwsh.exe"
-        )
-        $pwsh = $knownPaths | Where-Object { Test-Path $_ } | Select-Object -First 1
-    } else {
-        $pwsh = $pwsh.Source
-    }
-    if ($pwsh) {
-        Write-Host "Relaunching script in PowerShell 7..."
-        Start-Process -FilePath $pwsh -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$($MyInvocation.MyCommand.Definition)`""
-        $failed = $false
-    } else {
-        Write-Host "PowerShell 7 not found in PATH or common locations."
-        Write-Host "Download it here: https://aka.ms/powershell"
-        $failed = $true
-    }
-
-    Write-Host "`nFor a better script experience, install PowerShell 7+ and ensure your Visual Studio is configured to use it."
-    Write-Host "Download PowerShell 7+: https://aka.ms/powershell"
-    Write-Host "Configure Visual Studio to use PowerShell 7+: https://stackoverflow.com/a/76045797/6472449`n"
-
-    if ($failed) {
-        exit 1
-    } else {
-        exit 0
-    }
-}
-
 $OutputFile = "DumpCommits.txt"
+if (-not (Test-Path $OutputFile)) {
+    New-Item -Path $OutputFile -ItemType File | Out-Null
+}
+$OutputFile = (Resolve-Path $OutputFile).Path
 $Count = -1
 if ($Count -eq -1) {
     $Commits = git log --pretty=format:"%H"
