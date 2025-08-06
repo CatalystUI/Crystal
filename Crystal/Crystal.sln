@@ -4,20 +4,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{7FC25329-F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crystal.Core", "Core\Crystal.Core\Crystal.Core.csproj", "{1999AC24-7F46-45D0-A0A7-CA23DAFE297E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Models", "Models", "{6014C613-90A8-4489-A8CB-B24DE5A2F65E}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "L2 - Windowing", "L2 - Windowing", "{FB7F3890-120F-4800-8953-02EBFE5DD4D6}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "L4 - Renderers", "L4 - Renderers", "{37150499-4A28-46CB-BAA3-717518C4F152}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "L5 - Frames", "L5 - Frames", "{1E8CD720-ABF6-40A3-A7C4-14277FE71A7D}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "L6 - Components", "L6 - Components", "{4B005512-5932-4D3E-A3D2-D51886BEC2C6}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "L3 - Structure", "L3 - Structure", "{D1E9305D-FA44-4236-9E76-CDBC4DDD6645}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crystal.Models.CrystalWindow", "Models\Crystal.Models.CrystalWindow\Crystal.Models.CrystalWindow.csproj", "{1FBE6189-5603-433D-9DE7-0AF4E2FD32AE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,13 +14,8 @@ Global
 		{1999AC24-7F46-45D0-A0A7-CA23DAFE297E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1999AC24-7F46-45D0-A0A7-CA23DAFE297E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1999AC24-7F46-45D0-A0A7-CA23DAFE297E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1FBE6189-5603-433D-9DE7-0AF4E2FD32AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1FBE6189-5603-433D-9DE7-0AF4E2FD32AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1FBE6189-5603-433D-9DE7-0AF4E2FD32AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1FBE6189-5603-433D-9DE7-0AF4E2FD32AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1999AC24-7F46-45D0-A0A7-CA23DAFE297E} = {7FC25329-F205-4629-B213-D910D2B641B9}
-		{1FBE6189-5603-433D-9DE7-0AF4E2FD32AE} = {6014C613-90A8-4489-A8CB-B24DE5A2F65E}
 	EndGlobalSection
 EndGlobal
