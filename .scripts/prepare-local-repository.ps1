@@ -12,7 +12,9 @@ For full terms, see the LICENSE and NOTICE files in the project root.
 #>
 
 [CmdletBinding()]
-param ()
+param (
+    [switch]$clear
+)
 
 
 # --- Disable Verbosity ---
@@ -30,7 +32,13 @@ if (-not (Test-Path $nugetPath)) {
         (Get-Item $nugetPath).Attributes += 'Hidden'
     }
 } else {
-    Write-Host "Using existing local NuGet repository at: `e[32m$nugetPath`e[0m"
+    if ($clear) {
+        Write-Host "Clearing contents of local NuGet repository at: `e[32m$nugetPath`e[0m"
+        Get-ChildItem -Path $nugetPath -Recurse -Force |
+                Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+    } else {
+        Write-Host "Using existing local NuGet repository at: `e[32m$nugetPath`e[0m"
+    }
 }
 
 # --- Register Local Repository ---

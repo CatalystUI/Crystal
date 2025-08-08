@@ -22,6 +22,76 @@ if ($VerbosePreference -eq "Continue") {
     $verbose = $false
 }
 
+# --- Hash/Fingerprint Helpers ---
+function Get-ProjectFingerprint {
+    param([string]$projectPath)
+
+    $root = Split-Path -Parent $projectPath
+    $interesting = @(
+        '*.cs',
+        '*.csproj',
+        '*.props',
+        '*.targets',
+        'Directory.Packages.props',
+        'NuGet.Config',
+        'packages.lock.json',
+        'global.json'
+    )
+
+    # Wrap foreach in parentheses so we can sort/unique afterwards
+    $files = @(foreach ($p in $interesting) {
+        Get-ChildItem -Path $root -Recurse -File -Filter $p -ErrorAction SilentlyContinue
+    }) | Sort-Object FullName -Unique
+
+    if ($verbose) {
+        Write-Host "Fingerprinting files for {$projectPath}:" -ForegroundColor Cyan
+    }
+
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    foreach ($f in $files) {
+        $bytes = [System.IO.File]::ReadAllBytes($f.FullName)
+        $null = $sha.TransformBlock($bytes, 0, $bytes.Length, $bytes, 0)
+        if ($verbose) {
+            $fileHash = [BitConverter]::ToString(
+                    ([System.Security.Cryptography.SHA256]::Create()).ComputeHash($bytes)
+            ) -replace '-', ''
+            Write-Host "  $($f.FullName) [$fileHash]" -ForegroundColor DarkGray
+        }
+    }
+    $null = $sha.TransformFinalBlock([byte[]]::new(0), 0, 0)
+    -join ($sha.Hash | ForEach-Object { $_.ToString('x2') })
+}
+
+# --- Check if Project Should Be Built ---
+function Test-BuildProject {
+    param(
+        [string]$projectPath,
+        [string]$cacheDir
+    )
+    if (-not (Test-Path $cacheDir)) {
+        New-Item -ItemType Directory -Path $cacheDir | Out-Null
+        if ($IsWindows) {
+            (Get-Item $cacheDir).Attributes += 'Hidden'
+        }
+    }
+    $name = [IO.Path]::GetFileNameWithoutExtension($projectPath)
+    $cacheFile = Join-Path $cacheDir "$name.fingerprint"
+    $current = Get-ProjectFingerprint $projectPath
+    if (Test-Path $cacheFile) {
+        $previous = Get-Content $cacheFile -Raw
+        if ($previous -eq $current) {
+            if ($verbose) { Write-Host "No change in fingerprint for $projectPath." -ForegroundColor Green }
+            return $false
+        } elseif ($verbose) {
+            Write-Host "Fingerprint changed for $projectPath." -ForegroundColor Yellow
+            Write-Host "Previous: $previous" -ForegroundColor DarkYellow
+            Write-Host "Current : $current" -ForegroundColor DarkYellow
+        }
+    }
+    Set-Content -Path $cacheFile -Value $current -NoNewline
+    return $true
+}
+
 
 # --- Loading Function ---
 function Show-Loading {
@@ -52,7 +122,7 @@ function Show-Loading {
         $i++
         $SpinnerState.Value = [Math]::Max($SpinnerState.Value, ($Message.Length + 4))
     }
-    
+
     # Process output after process exit
     $stdout = $process.StandardOutput.ReadToEnd()
     $stderr = $process.StandardError.ReadToEnd()
@@ -76,7 +146,14 @@ function Show-Loading {
 
 
 # --- Build Project ---
-function Build-Project($projectPath, $nugetPath, $verbose) {
+function Build-Project($projectPath, $nugetPath, $verbose, $force = $false) {
+    $cacheDir = Join-Path $nugetPath ".buildcache"
+    if (-not $force -and (-not (Test-BuildProject -projectPath $projectPath -cacheDir $cacheDir))) {
+        if ($verbose) { Write-Host "No changes detected for $projectPath. Skipping build/pack." }
+        $global:LASTEXITCODE = 1
+        return
+    }
+
     # --- Delete Existing Files ---
     $projectName = [System.IO.Path]::GetFileNameWithoutExtension($projectPath)
     $projectLowerName = $projectName.ToLowerInvariant()
@@ -103,19 +180,17 @@ function Build-Project($projectPath, $nugetPath, $verbose) {
             Remove-Item $_.FullName -Recurse -Force -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
         }
     }
-    
+
     # Restore, clean, build, and pack the project
     $spinnerState = 0
     if ($verbose) {
         dotnet restore $projectPath -s $nugetPath --force-evaluate
-        dotnet clean $projectPath
         dotnet build $projectPath -c Release
         dotnet pack $projectPath -c Release -o $nugetPath -v:diag
     } else {
-        Show-Loading "(1/4) Restoring..." "dotnet restore '$projectPath' -s '$nugetPath' --force-evaluate" ([ref]$spinnerState)
-        Show-Loading "(2/4) Cleaning project..." "dotnet clean '$projectPath'" ([ref]$spinnerState)
-        Show-Loading "(3/4) Building project..." "dotnet build '$projectPath' -c Release" ([ref]$spinnerState)
-        Show-Loading "(4/4) Packing project..." "dotnet pack '$projectPath' -c Release -o '$nugetPath'" ([ref]$spinnerState)
+        Show-Loading "(1/3) Restoring..." "dotnet restore '$projectPath' -s '$nugetPath' --force-evaluate" ([ref]$spinnerState)
+        Show-Loading "(2/3) Building project..." "dotnet build '$projectPath' -c Release" ([ref]$spinnerState)
+        Show-Loading "(3/3) Packing project..." "dotnet pack '$projectPath' -c Release -o '$nugetPath'" ([ref]$spinnerState)
     }
 
     # Ensure .nupkg is flushed to disk
@@ -128,7 +203,7 @@ function Build-Project($projectPath, $nugetPath, $verbose) {
         Start-Sleep -Milliseconds 100
         $retry++
     }
-    
+
     $clear = ' ' * $spinnerState
     Write-Host -NoNewline "`r$clear`r"
 }

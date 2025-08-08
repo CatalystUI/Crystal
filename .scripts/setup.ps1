@@ -28,7 +28,7 @@ if ($verbose) {
 
 
 # --- Prepare Local Repository ---
-. ./.scripts/prepare-local-repository.ps1
+. ./.scripts/prepare-local-repository.ps1 -clear
 
 
 # --- Package & Publish All Projects In-Order (based on dependents) ---
