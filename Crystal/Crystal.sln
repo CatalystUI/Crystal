@@ -8,6 +8,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Windowing", "Windowing", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crystal.Windowing", "Windowing\Crystal.Windowing\Crystal.Windowing.csproj", "{6DE4B4D3-60B6-404F-9F6E-D714DA9D7471}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crystal.Windowing.Glfw3", "Windowing\Crystal.Windowing.Glfw3\Crystal.Windowing.Glfw3.csproj", "{3D79C5A0-BF2D-4FA1-B558-EBABA1D7AC31}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,9 +24,14 @@ Global
 		{6DE4B4D3-60B6-404F-9F6E-D714DA9D7471}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DE4B4D3-60B6-404F-9F6E-D714DA9D7471}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6DE4B4D3-60B6-404F-9F6E-D714DA9D7471}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D79C5A0-BF2D-4FA1-B558-EBABA1D7AC31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D79C5A0-BF2D-4FA1-B558-EBABA1D7AC31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D79C5A0-BF2D-4FA1-B558-EBABA1D7AC31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D79C5A0-BF2D-4FA1-B558-EBABA1D7AC31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1999AC24-7F46-45D0-A0A7-CA23DAFE297E} = {7FC25329-F205-4629-B213-D910D2B641B9}
 		{6DE4B4D3-60B6-404F-9F6E-D714DA9D7471} = {373D9C21-00BE-4CB6-9A25-66F0D21CC131}
+		{3D79C5A0-BF2D-4FA1-B558-EBABA1D7AC31} = {373D9C21-00BE-4CB6-9A25-66F0D21CC131}
 	EndGlobalSection
 EndGlobal

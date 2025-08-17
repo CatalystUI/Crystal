@@ -52,12 +52,20 @@ $projectsList = @(
         Depends = @("Core")
     },
     @{
-        Module = "Windowing (All)"
+        Module = "Windowing (Glfw3)"
         Projects = @(
-            
+            @{ Folder = "Windowing"; Name = "Crystal.Windowing.Glfw3" }
         )
         PromptIgnore = $false
         Depends = @("Internal_WindowingCore")
+    },
+    @{
+        Module = "Windowing (All)"
+        Projects = @()
+        PromptIgnore = $false
+        Depends = @(
+            "Windowing (Glfw3)"
+        )
     }
 )
 

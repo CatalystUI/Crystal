@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- Project Properties -->
+    <PropertyGroup>
+        <!-- Build Properties -->
+        <RootNamespace>Crystal.Windowing.Glfw3</RootNamespace>
+
+        <!-- Metadata -->
+        <Title>Crystal Windowing — Glfw3</Title>
+        <VersionPrefix>1.0.0</VersionPrefix>
+        <VersionSuffix>alpha.1</VersionSuffix>
+        <Authors>FireController#1847</Authors>
+        <Description>Glfw3 Windowing API provided by the Crystal library based on CatalystUI.</Description>
+        <PackageTags>Crystal,CatalystUI,windowing,glfw,glfw3</PackageTags>
+    </PropertyGroup>
+
+    <!-- NuGet Dependencies -->
+    <ItemGroup>
+        <PackageReference Include="Crystal.Windowing" Version="1.0.0-alpha.1" />
+    </ItemGroup>
+
+</Project>
