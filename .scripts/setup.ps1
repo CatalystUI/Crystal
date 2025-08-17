@@ -34,7 +34,7 @@ if ($verbose) {
 # --- Package & Publish All Projects In-Order (based on dependents) ---
 $projectsPath = Resolve-Path "./Crystal/"
 $projectsList = @(
-# Dependency modules must appear above dependent modules in this list
+    # Dependency modules must appear above dependent modules in this list
     @{
         Module = "Core"
         Projects = @(
@@ -42,6 +42,22 @@ $projectsList = @(
         )
         PromptIgnore = $true
         Depends = @()
+    },
+    @{
+        Module = "Internal_WindowingCore"
+        Projects = @(
+            @{ Folder = "Windowing"; Name = "Crystal.Windowing" }
+        )
+        PromptIgnore = $true
+        Depends = @("Core")
+    },
+    @{
+        Module = "Windowing (All)"
+        Projects = @(
+            
+        )
+        PromptIgnore = $false
+        Depends = @("Internal_WindowingCore")
     }
 )
 

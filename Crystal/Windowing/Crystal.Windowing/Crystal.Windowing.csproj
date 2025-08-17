@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- Project Properties -->
+    <PropertyGroup>
+        <!-- Build Properties -->
+        <RootNamespace>Crystal.Windowing</RootNamespace>
+
+        <!-- Metadata -->
+        <Title>Crystal Windowing Core</Title>
+        <VersionPrefix>1.0.0</VersionPrefix>
+        <VersionSuffix>alpha.1</VersionSuffix>
+        <Authors>FireController#1847</Authors>
+        <Description>Windowing Core API provided by the Crystal library based on CatalystUI.</Description>
+        <PackageTags>Crystal,CatalystUI,windowing,core</PackageTags>
+    </PropertyGroup>
+
+    <!-- NuGet Dependencies -->
+    <ItemGroup>
+        <PackageReference Include="Crystal.Core" Version="1.0.0-alpha.1" />
+    </ItemGroup>
+
+</Project>
