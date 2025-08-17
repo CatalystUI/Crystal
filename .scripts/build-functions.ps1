@@ -207,16 +207,3 @@ function Build-Project($projectPath, $nugetPath, $verbose, $force = $false) {
     $clear = ' ' * $spinnerState
     Write-Host -NoNewline "`r$clear`r"
 }
-
-
-# --- Restore Solution ---
-function Restore-Solution($solutionPath, $nugetPath) {
-    $spinnerState = 0
-    if ($verbose) {
-        dotnet restore $solutionPath -s $nugetPath --force-evaluate
-    } else {
-        Show-Loading "Restoring solution..." "dotnet restore '$solutionPath' -s '$nugetPath'" ([ref]$spinnerState)
-    }
-    $clear = ' ' * $spinnerState
-    Write-Host -NoNewline "`r$clear`r"
-}

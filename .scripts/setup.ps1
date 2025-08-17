@@ -34,14 +34,86 @@ if ($verbose) {
 # --- Package & Publish All Projects In-Order (based on dependents) ---
 $projectsPath = Resolve-Path "./Crystal/"
 $projectsList = @(
-    @{ folder = 'Core'; name = 'Crystal.Core' }
+# Dependency modules must appear above dependent modules in this list
+    @{
+        Module = "Core"
+        Projects = @(
+            @{ Folder = "Core"; Name = "Crystal.Core" }
+        )
+        PromptIgnore = $true
+        Depends = @()
+    }
 )
-foreach ($project in $projectsList) {
-    $projectPath = Join-Path $projectsPath (Join-Path $project.folder (Join-Path $project.name ("{0}.csproj" -f $project.name)))
-    Write-Host "Processing project: `e[33m$($project.name)`e[0m at `e[32m$projectPath`e[0m"
-    Build-Project $projectPath $nugetPath $verbose
+
+
+# --- Build prompt options dynamically ---
+$promptOptions = @("All") + (
+$projectsList |
+        Where-Object { -not $_.PromptIgnore -and $_.Module -ne "All" } |
+        Select-Object -ExpandProperty Module -Unique |
+        Sort-Object
+)
+
+
+# --- Prompt User for Module Selection ---
+Write-Host "Select module to set up:"
+for ($i = 0; $i -lt $promptOptions.Count; $i++) {
+    Write-Host " [$($i+1)] $($promptOptions[$i])"
 }
-Restore-Solution $projectsPath $nugetPath
+$selection = Read-Host "Enter the number of your choice"
+
+
+# --- Validate selection ---
+if ([int]::TryParse($selection, [ref]$null) -and ($selection -ge 1 -and $selection -le $promptOptions.Count)) {
+    $selectedPrompt = $promptOptions[$selection - 1]
+} else {
+    Write-Host "`e[31mInvalid selection. Defaulting to "All".`e[0m"
+    $selectedPrompt = "All"
+}
+
+
+# --- Resolve dependencies ---
+function Get-ModulesWithDependencies {
+    param (
+        [string[]] $modules
+    )
+    $resolved = New-Object System.Collections.Generic.HashSet[string]
+    $toProcess = [System.Collections.Generic.Queue[string]]::new()
+    foreach ($m in $modules) { $toProcess.Enqueue($m) }
+
+    while ($toProcess.Count -gt 0) {
+        $current = $toProcess.Dequeue()
+        if (-not $resolved.Contains($current)) {
+            $resolved.Add($current) | Out-Null
+            $depList = ($projectsList | Where-Object { $_.Module -eq $current }).Depends
+            foreach ($dep in $depList) {
+                if (-not $resolved.Contains($dep)) {
+                    $toProcess.Enqueue($dep)
+                }
+            }
+        }
+    }
+    return $resolved
+}
+
+
+# --- Filter Modules ---
+if ($selectedPrompt -eq "All") {
+    $selectedModules = $projectsList
+} else {
+    $allModules = Get-ModulesWithDependencies @($selectedPrompt)
+    $selectedModules = $projectsList | Where-Object { $allModules.Contains($_.Module) }
+}
+
+
+# --- Build Selected Projects ---
+foreach ($module in $selectedModules) {
+    foreach ($project in $module.Projects) {
+        $projectPath = Join-Path $projectsPath (Join-Path $project.Folder (Join-Path $project.Name ("{0}.csproj" -f $project.Name)))
+        Write-Host "Processing project: `e[33m$($project.Name)`e[0m at `e[32m$projectPath`e[0m"
+        Build-Project $projectPath $nugetPath $verbose -force:$true
+    }
+}
 
 
 # --- Final Output ---

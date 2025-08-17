@@ -143,11 +143,6 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "Packing failed. Exiting."
     exit $LASTEXITCODE
 }
-try {
-    Restore-Solution (Resolve-Path "./Crystal") $nugetPath
-} catch {
-    # that's okay for a local publish, maybe other projects are erroring
-}
 
 # --- Success ---
 Write-Host "Successfully published '`e[36m$projectName`e[0m' to local NuGet source '`e[32m$nugetSource`e[0m'"
