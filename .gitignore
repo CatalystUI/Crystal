@@ -4,6 +4,7 @@
 **/DumpSymbols.txt
 **/DumpCommits.txt
 **/DumpStructure.txt
+**/*.Profiling/*
 
 
 #############
@@ -655,3 +656,16 @@ Temporary Items
 
 # Log files created by default by the nohup command
 nohup.out
+
+
+###########################
+# CatalystUI Negotiations #
+###########################
+!**/*.Profiling/
+!**/*.Profiling/*.Profiling.csproj
+!**/*.Profiling/Program.cs
+!**/*.Profiling/Profile.Template.cs
+!**/*.Profiling/Properties/
+!**/*.Profiling/Properties/PublishProfiles/
+!**/*.Profiling/Properties/PublishProfiles/*.pubxml
+!**/*.Profiling/Properties/PublishProfiles/*.pubxml.user
