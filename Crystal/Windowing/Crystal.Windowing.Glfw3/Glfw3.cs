@@ -10,6 +10,7 @@
 // -------------------------------------------------------------------------------------------------
 
 using Catalyst.Attributes.Threading;
+using Catalyst.Debugging;
 using Catalyst.Native;
 using Catalyst.Threading;
 using Silk.NET.GLFW;
@@ -37,6 +38,18 @@ namespace Crystal.Windowing.Glfw3 {
         private static readonly Lock _staticLock;
         
         /// <summary>
+        /// Gets the Glfw3 debug context, if available.
+        /// </summary>
+        /// <value>The debug context for Glfw3, or <see langword="null"/> if not available.</value>
+        public static DebugContext DebugContext { get; }
+        
+        /// <summary>
+        /// Gets the GLFW 3 API instance.
+        /// </summary>
+        /// <value>The GLFW 3 API instance.</value>
+        public Glfw Api => _api!; // Non-nullable because it is initialized in the static constructor
+        
+        /// <summary>
         /// A flag indicating whether the object has been disposed of.
         /// </summary>
         private bool _disposed;
@@ -47,17 +60,15 @@ namespace Crystal.Windowing.Glfw3 {
         private readonly Lock _lock;
         
         /// <summary>
-        /// Gets the GLFW 3 API instance.
-        /// </summary>
-        /// <value>The GLFW 3 API instance.</value>
-        public Glfw Api => _api!; // Non-nullable because it is initialized in the static constructor
-        
-        /// <summary>
         /// Static constructor for <see cref="Glfw3"/>.
         /// </summary>
         static Glfw3() {
+            // Fields
             _referenceCount = 0;
             _staticLock = new();
+            
+            // Properties
+            DebugContext = CatalystDebug.ForContext("Glfw3");
         }
         
         /// <summary>

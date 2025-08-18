@@ -9,8 +9,12 @@
 // For full terms, see the LICENSE and NOTICE files in the project root.
 // -------------------------------------------------------------------------------------------------
 
+using Catalyst.Supplementary.Model.Systems;
+using Catalyst.Supplementary.Utilities;
 using Crystal.Windowing.Glfw3;
 using Catalyst.Threading;
+using Crystal.Windowing.Glfw3.NativeHandlers;
+using System.Runtime.InteropServices;
 
 // ReSharper disable once CheckNamespace
 namespace Catalyst.Builders.Extensions {
@@ -28,6 +32,7 @@ namespace Catalyst.Builders.Extensions {
         /// The Crystal-based Glfw3 windowing module adds the following to your CatalystUI application:
         /// <list type="bullet">
         ///     <item><see cref="Glfw3WindowingLayer"/></item>
+        ///     <item><see cref="IGlfw3NativeHandler{TLayerLow}"/></item>
         /// </list>
         /// Click on any of the above links to learn more about each component.
         /// </para>
@@ -37,6 +42,17 @@ namespace Catalyst.Builders.Extensions {
         public static CatalystAppBuilder AddGlfw3WindowingModule(this CatalystAppBuilder builder) {
             Glfw3WindowingLayer glfw3WindowingLayer = new();
             ModelRegistry.RegisterLayer(glfw3WindowingLayer);
+            if (SystemDetector.IsSystem<IWindowsSystemLayer>()) {
+                Glfw3WindowsNativeHandler windowsHandler = new();
+                ModelRegistry.RegisterConnector(windowsHandler);
+            } else if (SystemDetector.IsSystem<IMacSystemLayer>()) {
+                throw new NotImplementedException();
+            } else if (SystemDetector.IsSystem<ILinuxSystemLayer>()) {
+                throw new NotImplementedException();
+            } else {
+                // Native functionality for Glfw3 is OPTIONAL.
+                // Do not throw an error here unless it becomes REQUIRED.
+            }
             return builder;
         }
         

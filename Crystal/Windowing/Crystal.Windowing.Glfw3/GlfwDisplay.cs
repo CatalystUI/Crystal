@@ -9,7 +9,13 @@
 // For full terms, see the LICENSE and NOTICE files in the project root.
 // -------------------------------------------------------------------------------------------------
 
+using Catalyst;
+using Catalyst.Debugging;
+using Catalyst.Domains;
+using Catalyst.Layers;
 using Catalyst.Mathematics.Geometry;
+using Catalyst.Supplementary.Model.Systems;
+using Crystal.Windowing.Glfw3.NativeHandlers;
 using Silk.NET.GLFW;
 using Monitor = Silk.NET.GLFW.Monitor;
 
@@ -63,11 +69,13 @@ namespace Crystal.Windowing.Glfw3 {
             // Parse video mode
             VideoMode* pVideoMode = glfw.Api.GetVideoMode(pMonitor);
             if (pVideoMode == null) throw new WindowException("Failed to get the video mode on the monitor!");
+            Glfw3.DebugContext.Log(LogLevel.Verbose, $"Parsed video mode: {pVideoMode->Width}x{pVideoMode->Height} @ {pVideoMode->RefreshRate}Hz");
             
             // Get position and scaling
             glfw.Api.GetMonitorPos(pMonitor, out int x, out int y);
             glfw.Api.GetMonitorContentScale(pMonitor, out float xScale, out float yScale);
             double scale = (xScale + yScale) / 2.0; // Average scaling factor
+            Glfw3.DebugContext.Log(LogLevel.Verbose, $"Parsed monitor position: ({x}, {y}), Scaling factor: {scale}");
             
             // Get the PPI (Pixels Per Inch)
             glfw.Api.GetMonitorPhysicalSize(pMonitor, out int physicalWidth, out int physicalHeight);
@@ -76,14 +84,28 @@ namespace Crystal.Windowing.Glfw3 {
             double ppiX = physicalWidthInInches > 0 ? pVideoMode->Width / physicalWidthInInches : 0;
             double ppiY = physicalHeightInInches > 0 ? pVideoMode->Height / physicalHeightInInches : 0;
             double ppi = (ppiX + ppiY) / 2.0; // Average PPI
+            Glfw3.DebugContext.Log(LogLevel.Verbose, $"Parsed monitor physical size: {physicalWidth}mm x {physicalHeight}mm, PPI: {ppi}");
+            
+            // Check if we have a native handler for this system
+            IGlfw3NativeHandler<ISystemLayer<IDomain>>? nativeHandler;
+            try {
+                nativeHandler = ModelRegistry.RequestConnector<IGlfw3NativeHandler<ISystemLayer<IDomain>>>();
+                Glfw3.DebugContext.Log(LogLevel.Verbose, $"Found Glfw3 native handler: {nativeHandler}");
+            } catch {
+                nativeHandler = null;
+                Glfw3.DebugContext.Log(LogLevel.Warning, "No native handler found for Glfw3. Some QOL features may not be available.");
+            }
             
             // Get native details
             Angle rotation;
             DisplayOrientation orientation;
             try {
-                throw new NotImplementedException();
-                //rotation = Angle.FromDegrees(GlfwNative.GetDisplayRotation(glfw, pMonitor));
-                //orientation = rotation.ToOrientation();
+                if (nativeHandler != null) {
+                    rotation = Angle.FromDegrees(nativeHandler.GetDisplayRotation(glfw, pMonitor));
+                    orientation = rotation.ToOrientation();
+                } else {
+                    throw new PlatformNotSupportedException();
+                }
             } catch {
                 // Use physical size to determine orientation if rotation is not available
                 if (physicalWidth >= physicalHeight) {
@@ -94,22 +116,31 @@ namespace Crystal.Windowing.Glfw3 {
                     orientation = DisplayOrientation.Portrait;
                 }
             }
+            Glfw3.DebugContext.Log(LogLevel.Verbose, $"Parsed monitor rotation: {rotation}, Orientation: {orientation}");
             
             // Get EDID descriptor and manufacturer
             string descriptor;
             try {
-                throw new NotImplementedException();
-                //descriptor = GlfwNative.GetDisplayDescriptor(glfw, pMonitor);
+                if (nativeHandler != null) {
+                    descriptor = nativeHandler.GetDisplayDescriptor(glfw, pMonitor);
+                } else {
+                    throw new PlatformNotSupportedException();
+                }
             } catch {
                 descriptor = glfw.Api.GetMonitorName(pMonitor); // Fallback to GLFW monitor name if EDID is not available
             }
+            Glfw3.DebugContext.Log(LogLevel.Verbose, $"Parsed monitor descriptor: {descriptor}");
             string? manufacturer;
             try {
-                throw new NotImplementedException();
-                //manufacturer = GlfwNative.GetDisplayManufacturer(glfw, pMonitor);
+                if (nativeHandler != null) {
+                    manufacturer = nativeHandler.GetDisplayManufacturer(glfw, pMonitor);
+                } else {
+                    throw new PlatformNotSupportedException();
+                }
             } catch {
                 manufacturer = null; // Fallback to null if manufacturer is not available
             }
+            Glfw3.DebugContext.Log(LogLevel.Verbose, $"Parsed monitor manufacturer: {manufacturer ?? "Unknown"}");
             
             // Construct and return
             return new() {
