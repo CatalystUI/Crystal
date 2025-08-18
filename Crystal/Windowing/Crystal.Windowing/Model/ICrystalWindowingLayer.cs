@@ -28,7 +28,7 @@ namespace Crystal.Windowing.Model {
         /// Queries the system for the primary display.
         /// </summary>
         /// <returns>The primary display, or <see langword="null"/> if no primary display is available.</returns>
-        public ICrystalDisplay RequestPrimaryDisplay();
+        public ICrystalDisplay? RequestPrimaryDisplay();
         
     }
     

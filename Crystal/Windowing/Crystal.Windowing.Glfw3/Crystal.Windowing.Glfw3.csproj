@@ -4,6 +4,7 @@
     <PropertyGroup>
         <!-- Build Properties -->
         <RootNamespace>Crystal.Windowing.Glfw3</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
         <!-- Metadata -->
         <Title>Crystal Windowing — Glfw3</Title>
@@ -17,6 +18,7 @@
     <!-- NuGet Dependencies -->
     <ItemGroup>
         <PackageReference Include="Crystal.Windowing" Version="1.0.0-alpha.1" />
+        <PackageReference Include="Silk.NET.GLFW" Version="2.22.0" />
     </ItemGroup>
 
 </Project>
