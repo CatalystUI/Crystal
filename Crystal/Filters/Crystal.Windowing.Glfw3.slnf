@@ -1,0 +1,11 @@
+{
+  "solution": {
+    "path": "../Crystal.sln",
+    "projects": [
+      "Core/Crystal.Core/Crystal.Core.csproj",
+      "Windowing/Crystal.Windowing/Crystal.Windowing.csproj",
+      "Windowing/Crystal.Windowing.Glfw3/Crystal.Windowing.Glfw3.csproj",
+      "Windowing/Profiling/Crystal.Windowing.Glfw3.Profiling/Crystal.Windowing.Glfw3.Profiling.csproj"
+    ]
+  }
+}
