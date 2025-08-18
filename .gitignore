@@ -665,6 +665,7 @@ nohup.out
 !**/*.Profiling/*.Profiling.csproj
 !**/*.Profiling/Program.cs
 !**/*.Profiling/Profile.Template.cs
+!**/*.Profiling/catdebug.template.ini
 !**/*.Profiling/Properties/
 !**/*.Profiling/Properties/PublishProfiles/
 !**/*.Profiling/Properties/PublishProfiles/*.pubxml
