@@ -12,6 +12,7 @@
 using Catalyst.Native;
 using Catalyst.Supplementary.Model.Systems;
 using Microsoft.Win32;
+using Silk.NET.GLFW;
 using System.Runtime.InteropServices;
 using Monitor = Silk.NET.GLFW.Monitor;
 
@@ -21,6 +22,11 @@ namespace Crystal.Windowing.Glfw3.NativeHandlers {
     /// A Microsoft Windows-based implementation of <see cref="IGlfw3NativeHandler{TLayerLow}"/>.
     /// </summary>
     public sealed unsafe class Glfw3WindowsNativeHandler : IGlfw3NativeHandler<IWindowsSystemLayer> {
+        
+        /// <inheritdoc/>
+        public nint GetNativeHandle(Glfw3 glfw, WindowHandle* pWindow) {
+            return WindowsGlfwImports.glfwGetWin32Window(glfw, pWindow);
+        }
         
         /// <inheritdoc/>
         public double GetDisplayRotation(Glfw3 glfw, Monitor* pMonitor) {
@@ -79,6 +85,16 @@ namespace Crystal.Windowing.Glfw3.NativeHandlers {
         
         private static GetWin32Monitor? _glfwGetWin32Monitor;
         
+        /// <summary>
+        /// Returns the HWND of the specified window.
+        /// </summary>
+        /// <param name="handle">The GLFW handle for the window.</param>
+        /// <returns>The HWND of the window.</returns>
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate nint GetWin32Window(WindowHandle* handle);
+        
+        private static GetWin32Window? _glfwGetWin32Window;
+        
         public static nint glfwGetWin32Monitor(Glfw3 glfw, Monitor* pMonitor) {
             if (_glfwGetWin32Monitor == null) {
                 if (glfw.Api.Context.TryGetProcAddress("glfwGetWin32Monitor", out nint procAddress)) {
@@ -88,6 +104,17 @@ namespace Crystal.Windowing.Glfw3.NativeHandlers {
                 }
             }
             return _glfwGetWin32Monitor(pMonitor);
+        }
+        
+        public static nint glfwGetWin32Window(Glfw3 glfw, WindowHandle* handle) {
+            if (_glfwGetWin32Window == null) {
+                if (glfw.Api.Context.TryGetProcAddress("glfwGetWin32Window", out nint proc)) {
+                    _glfwGetWin32Window = Marshal.GetDelegateForFunctionPointer<GetWin32Window>(proc);
+                } else {
+                    return 0;
+                }
+            }
+            return _glfwGetWin32Window(handle);
         }
         
     }

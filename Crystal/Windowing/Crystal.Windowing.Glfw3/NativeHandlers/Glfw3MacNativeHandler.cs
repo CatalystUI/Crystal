@@ -11,6 +11,7 @@
 
 using Catalyst.Native;
 using Catalyst.Supplementary.Model.Systems;
+using Silk.NET.GLFW;
 using System.Runtime.InteropServices;
 using System.Text;
 using Monitor = Silk.NET.GLFW.Monitor;
@@ -21,6 +22,11 @@ namespace Crystal.Windowing.Glfw3.NativeHandlers {
     /// An Apple Mac-based implementation of <see cref="IGlfw3NativeHandler{TLayerLow}"/>
     /// </summary>
     public sealed unsafe class Glfw3MacNativeHandler : IGlfw3NativeHandler<IMacSystemLayer> {
+        
+        /// <inheritdoc/>
+        public nint GetNativeHandle(Glfw3 glfw, WindowHandle* pWindow) {
+            return MacGlfwImports.glfwGetCocoaWindow(glfw, pWindow);
+        }
         
         /// <inheritdoc/>
         public double GetDisplayRotation(Glfw3 glfw, Monitor* pMonitor) {
@@ -59,7 +65,17 @@ namespace Crystal.Windowing.Glfw3.NativeHandlers {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int GetCocoaMonitor(Monitor* pMonitor);
         
-        private static GetCocoaMonitor? _glfwGetCocoaMonitor = null;
+        private static GetCocoaMonitor? _glfwGetCocoaMonitor;
+        
+        /// <summary>
+        /// Returns the NSWindow of the specified window.
+        /// </summary>
+        /// <param name="handle">The GLFW handle for the window.</param>
+        /// <returns>The NSWindow of the window.</returns>
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate nint GetCocoaWindow(WindowHandle* handle);
+        
+        private static GetCocoaWindow? _glfwGetCocoaWindow;
         
         public static int glfwGetCocoaMonitor(Glfw3 glfw, Monitor* pMonitor) {
             if (_glfwGetCocoaMonitor == null) {
@@ -70,6 +86,17 @@ namespace Crystal.Windowing.Glfw3.NativeHandlers {
                 }
             }
             return _glfwGetCocoaMonitor(pMonitor);
+        }
+        
+        public static nint glfwGetCocoaWindow(Glfw3 glfw, WindowHandle* handle) {
+            if (_glfwGetCocoaWindow == null) {
+                if (glfw.Api.Context.TryGetProcAddress("glfwGetCocoaWindow", out nint proc)) {
+                    _glfwGetCocoaWindow = Marshal.GetDelegateForFunctionPointer<GetCocoaWindow>(proc);
+                } else {
+                    return 0;
+                }
+            }
+            return _glfwGetCocoaWindow(handle);
         }
         
     }

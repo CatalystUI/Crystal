@@ -12,6 +12,7 @@
 using Catalyst.Connectors;
 using Catalyst.Domains;
 using Catalyst.Layers;
+using Silk.NET.GLFW;
 using Monitor = Silk.NET.GLFW.Monitor;
 
 namespace Crystal.Windowing.Glfw3.NativeHandlers {
@@ -21,6 +22,14 @@ namespace Crystal.Windowing.Glfw3.NativeHandlers {
     /// </summary>
     /// <inheritdoc cref="INativeHandler{TLayerHigh, TLayerLow}"/>
     public unsafe interface IGlfw3NativeHandler<out TLayerLow> : INativeHandler<Glfw3WindowingLayer, TLayerLow> where TLayerLow : ISystemLayer<IDomain> {
+        
+        /// <summary>
+        /// Gets the platform-specific native window handle of the specified Glfw3 window.
+        /// </summary>
+        /// <param name="glfw">The Glfw3 instance to use.</param>
+        /// <param name="pWindow">The Glfw3 window handle.</param>
+        /// <returns>A platform-specific native window handle.</returns>
+        public nint GetNativeHandle(Glfw3 glfw, WindowHandle* pWindow);
         
         /// <summary>
         /// Gets the rotation of the specified display in degrees.

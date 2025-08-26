@@ -31,7 +31,7 @@ namespace Crystal.Windowing.Glfw3 {
         }
 
         [CachedDelegate]
-        private static unsafe GlfwDisplay[] GetDisplaysUnsafe() {
+        internal static unsafe GlfwDisplay[] GetDisplaysUnsafe() {
             using Glfw3 glfw = Glfw3.GetInstance();
             Monitor** pMonitors = glfw.Api.GetMonitors(out int count);
             if (pMonitors == null || count <= 0) return [];
@@ -53,7 +53,7 @@ namespace Crystal.Windowing.Glfw3 {
         }
         
         [CachedDelegate]
-        private static unsafe GlfwDisplay? GetPrimaryDisplayUnsafe() {
+        internal static unsafe GlfwDisplay? GetPrimaryDisplayUnsafe() {
             using Glfw3 glfw = Glfw3.GetInstance();
             Monitor* pPrimaryMonitor = glfw.Api.GetPrimaryMonitor();
             return pPrimaryMonitor != null ? GlfwDisplay.FromMonitor(glfw, pPrimaryMonitor) : null;

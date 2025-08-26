@@ -26,6 +26,11 @@ namespace Crystal.Windowing.Glfw3 {
     /// </summary>
     public readonly record struct GlfwDisplay : ICrystalDisplay {
         
+        /// <summary>
+        /// Gets the Glfw3 monitor pointer.
+        /// </summary>
+        public required nint Monitor { get; init; }
+        
         /// <inheritdoc/>
         public required string Descriptor { get; init; }
         
@@ -144,6 +149,7 @@ namespace Crystal.Windowing.Glfw3 {
             
             // Construct and return
             return new() {
+                Monitor = (nint) pMonitor,
                 Descriptor = descriptor,
                 Manufacturer = manufacturer,
                 RefreshRate = (uint) pVideoMode->RefreshRate,
