@@ -464,10 +464,10 @@ namespace Crystal.Windowing.Glfw3 {
             
             // Wait for other processes if they are initializing
             bool newMutex;
-            using Mutex mutex = new(true, "Global\\CatalystUI_GLFW_Lock", out newMutex);
+            using Mutex mutex = new(true, "Global\\CatalystUI_Glfw3_Lock", out newMutex);
             if (!newMutex) {
                 if (!mutex.WaitOne(ThreadDelegateDispatcher.LockoutTimeout)) {
-                    throw new WindowException("Failed to acquire mutex lock for GLFW window initialization.");
+                    throw new WindowException("Failed to acquire mutex lock for Glfw3 window initialization.");
                 }
             }
             try {
