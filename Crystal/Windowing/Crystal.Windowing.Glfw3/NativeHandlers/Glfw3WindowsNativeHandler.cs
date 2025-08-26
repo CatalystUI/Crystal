@@ -24,7 +24,7 @@ namespace Crystal.Windowing.Glfw3.NativeHandlers {
         
         /// <inheritdoc/>
         public double GetDisplayRotation(Glfw3 glfw, Monitor* pMonitor) {
-            nint deviceName = GlfwImports.glfwGetWin32Monitor(glfw, pMonitor);
+            nint deviceName = WindowsGlfwImports.glfwGetWin32Monitor(glfw, pMonitor);
             string? str = Marshal.PtrToStringUTF8(deviceName);
             if (str == null) throw new NativeException("Failed to retrieve device name from monitor.");
             return WindowsImports.GetDisplayRotation(str);
@@ -32,7 +32,7 @@ namespace Crystal.Windowing.Glfw3.NativeHandlers {
         
         /// <inheritdoc/>
         public string GetDisplayDescriptor(Glfw3 glfw, Monitor* pMonitor) {
-            nint deviceName = GlfwImports.glfwGetWin32Monitor(glfw, pMonitor);
+            nint deviceName = WindowsGlfwImports.glfwGetWin32Monitor(glfw, pMonitor);
             string? str = Marshal.PtrToStringUTF8(deviceName);
             if (str == null) throw new NativeException("Failed to retrieve device name from monitor.");
             List<byte[]> edids = WindowsImports.GetDisplayEdid(str);
@@ -49,7 +49,7 @@ namespace Crystal.Windowing.Glfw3.NativeHandlers {
         
         /// <inheritdoc/>
         public string GetDisplayManufacturer(Glfw3 glfw, Monitor* pMonitor) {
-            nint deviceName = GlfwImports.glfwGetWin32Monitor(glfw, pMonitor);
+            nint deviceName = WindowsGlfwImports.glfwGetWin32Monitor(glfw, pMonitor);
             string? str = Marshal.PtrToStringUTF8(deviceName);
             if (str == null) throw new NativeException("Failed to retrieve device name from monitor.");
             List<byte[]> edids = WindowsImports.GetDisplayEdid(str);
@@ -67,7 +67,7 @@ namespace Crystal.Windowing.Glfw3.NativeHandlers {
     }
     
     // ReSharper disable InconsistentNaming
-    internal static unsafe class GlfwImports {
+    internal static unsafe class WindowsGlfwImports {
         
         /// <summary>
         /// Returns the Win32 device name for the specified monitor.

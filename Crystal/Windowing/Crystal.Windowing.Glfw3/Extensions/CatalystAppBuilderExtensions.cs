@@ -12,9 +12,7 @@
 using Catalyst.Supplementary.Model.Systems;
 using Catalyst.Supplementary.Utilities;
 using Crystal.Windowing.Glfw3;
-using Catalyst.Threading;
 using Crystal.Windowing.Glfw3.NativeHandlers;
-using System.Runtime.InteropServices;
 
 // ReSharper disable once CheckNamespace
 namespace Catalyst.Builders.Extensions {
@@ -46,7 +44,8 @@ namespace Catalyst.Builders.Extensions {
                 Glfw3WindowsNativeHandler windowsHandler = new();
                 ModelRegistry.RegisterConnector(windowsHandler);
             } else if (SystemDetector.IsSystem<IMacSystemLayer>()) {
-                throw new NotImplementedException();
+                Glfw3MacNativeHandler macHandler = new();
+                ModelRegistry.RegisterConnector(macHandler);
             } else if (SystemDetector.IsSystem<ILinuxSystemLayer>()) {
                 throw new NotImplementedException();
             } else {
