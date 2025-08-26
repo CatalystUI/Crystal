@@ -5,6 +5,7 @@
 **/DumpCommits.txt
 **/DumpStructure.txt
 **/*.Profiling/*
+Crystal/NuGet.Config
 
 
 #############
