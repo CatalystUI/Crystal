@@ -63,7 +63,7 @@ namespace Crystal.Windowing {
         /// Delegate for the <see cref="Closing"/> event.
         /// </summary>
         /// <param name="window">The window that raised the event.</param>
-        /// <returns><c>true</c> to cancel the close operation; otherwise, <c>false</c>.</returns>
+        /// <returns><see langword="true"/> to cancel the close operation; otherwise, <see langword="false"/>.</returns>
         public delegate bool WindowClosingEventHandler(ICrystalWindow window);
         
         /// <summary>
@@ -357,51 +357,57 @@ namespace Crystal.Windowing {
         /// <summary>
         /// Gets a value indicating whether the window can be resized by the user.
         /// </summary>
-        /// <value><c>true</c> if the window is resizable; otherwise, <c>false</c>.</value>
+        /// <value><see langword="true"/> if the window is resizable; otherwise, <see langword="false"/>.</value>
         public bool IsResizable { get; }
         
         /// <summary>
         /// Gets a value indicating whether the window has standard decorations such as borders and title bar.
         /// </summary>
-        /// <value><c>true</c> if the window is decorated; otherwise, <c>false</c>.</value>
+        /// <value><see langword="true"/> if the window is decorated; otherwise, <see langword="false"/>.</value>
         public bool IsDecorated { get; }
         
         /// <summary>
         /// Gets a value indicating whether the window currently has input focus.
         /// </summary>
-        /// <value><c>true</c> if the window is focused; otherwise, <c>false</c>.</value>
+        /// <value><see langword="true"/> if the window is focused; otherwise, <see langword="false"/>.</value>
         public bool IsFocused { get; }
 
         /// <summary>
         /// Gets a value indicating whether the window currently does not have input focus.
         /// </summary>
-        /// <value><c>true</c> if the window is unfocused; otherwise, <c>false</c>.</value>
+        /// <value><see langword="true"/> if the window is unfocused; otherwise, <see langword="false"/>.</value>
         public bool IsUnfocused { get; }
 
         /// <summary>
         /// Gets a value indicating whether the window is currently minimized.
         /// </summary>
-        /// <value><c>true</c> if the window is minimized; otherwise, <c>false</c>.</value>
+        /// <value><see langword="true"/> if the window is minimized; otherwise, <see langword="false"/>.</value>
         public bool IsMinimized { get; }
 
         /// <summary>
         /// Gets a value indicating whether the window is currently maximized.
         /// </summary>
-        /// <value><c>true</c> if the window is maximized; otherwise, <c>false</c>.</value>
+        /// <value><see langword="true"/> if the window is maximized; otherwise, <see langword="false"/>.</value>
         public bool IsMaximized { get; }
 
         /// <summary>
         /// Gets a value indicating whether the window is currently visible on the display.
         /// </summary>
-        /// <value><c>true</c> if the window is visible; otherwise, <c>false</c>.</value>
+        /// <value><see langword="true"/> if the window is visible; otherwise, <see langword="false"/>.</value>
         public bool IsVisible { get; }
 
         /// <summary>
         /// Gets a value indicating whether the window is currently hidden from the display.
         /// </summary>
-        /// <value><c>true</c> if the window is hidden; otherwise, <c>false</c>.</value>
+        /// <value><see langword="true"/> if the window is hidden; otherwise, <see langword="false"/>.</value>
         public bool IsHidden { get; }
-
+        
+        /// <summary>
+        /// Gets a value indicating whether the window has been closed and is no longer operational.
+        /// </summary>
+        /// <value><see langword="true"/> if the window is closed; otherwise, <see langword="false"/>.</value>
+        public bool IsClosed { get; }
+        
         /// <summary>
         /// Sets the window's position relative to the top-left corner of the primary display.
         /// </summary>
