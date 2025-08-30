@@ -1170,11 +1170,16 @@ namespace Crystal.Windowing.Glfw3 {
 
                 // Dispose managed state (managed objects)
                 if (disposing) {
+                    // Detach threading events
                     ThreadDelegateDispatcher? dispatcher = ThreadDelegateDispatcher.MainThreadDispatcher;
                     if (dispatcher != null) {
                         dispatcher.PreExecute -= _preExecuteHandler;
                         dispatcher.DelegateEnqueued -= _delegateEnqueuedHandler;
                     }
+                    
+                    // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+                    Glfw?.Api.PostEmptyEvent(); // always post to unblock the main thread
+                    Glfw?.Dispose(); // dispose of our requested api instance
                 }
 
                 // Dispose unmanaged state (unmanaged objects)
