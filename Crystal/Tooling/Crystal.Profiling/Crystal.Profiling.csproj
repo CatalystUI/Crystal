@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- Project Properties -->
+    <PropertyGroup>
+        <!-- Build Properties -->
+        <OutputType>Exe</OutputType>
+        <RootNamespace>Crystal.Profiling</RootNamespace>
+    </PropertyGroup>
+
+    <!-- Common profiling dependencies for all CatalystUI or CatalystUI-based projects -->
+    <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+        <PackageReference Include="CatalystUI.Debug" Version="1.0.0-alpha.1" />
+        <PackageReference Include="JetBrains.Profiler.Api" Version="1.4.10"/>
+    </ItemGroup>
+
+    <!-- Custom profiling dependencies -->
+    <Import Project="Properties/catdeps.props" Condition="Exists('Properties/catdeps.props')" />
+
+    <!-- Check if the non-templated Profile.cs file exists -->
+    <PropertyGroup Condition="Exists('Profile.cs')">
+        <DefineConstants>$(DefineConstants);PROFILE_EXISTS</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup Condition="Exists('Profile.cs')">
+        <None Include="Profile.cs" />
+    </ItemGroup>
+
+    <!-- Exclude Profile.template.cs from compilation if it exists -->
+    <ItemGroup Condition="Exists('Profile.template.cs')">
+        <Compile Remove="Profile.template.cs" />
+        <None Include="Profile.template.cs" />
+    </ItemGroup>
+
+    <!-- Exclude template properties from compilation if it exists -->
+    <ItemGroup>
+        <None Include="Properties/catdebug.template.ini" Condition="Exists('Properties/catdebug.template.ini')" />
+        <None Include="Properties/catdeps.template.props" Condition="Exists('Properties/catdeps.template.props')" />
+    </ItemGroup>
+
+    <!-- Copy debug configuration file if it exists -->
+    <ItemGroup Condition="Exists('Properties/catdebug.ini')">
+        <None Include="Properties/catdebug.ini">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <TargetPath>catdebug.ini</TargetPath>
+        </None>
+    </ItemGroup>
+
+</Project>

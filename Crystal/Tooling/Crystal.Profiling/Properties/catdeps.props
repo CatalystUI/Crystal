@@ -1,0 +1,6 @@
+<Project>
+    <ItemGroup>
+        <!-- Include project references or custom dependencies here -->
+        <ProjectReference Include="..\..\Windowing\Crystal.Windowing.Glfw3\Crystal.Windowing.Glfw3.csproj" />
+    </ItemGroup>
+</Project>

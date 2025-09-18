@@ -1,0 +1,8 @@
+<Project>
+    <ItemGroup>
+        <!-- Include project references or custom dependencies here -->
+        <!-- Below are the defaults for the CatalystUI library -->
+        <ProjectReference Include="../../Core/CatalystUI.Core/CatalystUI.Core.csproj" />
+        <ProjectReference Include="../../Core/CatalystUI.Supplementary/CatalystUI.Supplementary.csproj" />
+    </ItemGroup>
+</Project>
