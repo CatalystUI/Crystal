@@ -15,7 +15,7 @@ For full terms, see the LICENSE and NOTICE files in the project root.
 # Name: CatalystUI.Build.psm1
 # Author: FireController#1847
 # Date: 2025-08-24
-# Version: 2.0.0
+# Version: 2.0.1
 
 function Show-Loading {
     <#
@@ -93,7 +93,7 @@ function Show-Loading {
             $i++
             $spinnerState.Value = [Math]::Max($spinnerState.Value, ($message.Length + 4))
         }
-        
+
         # Wait for the job to finish, gather results and errors
         $results = Receive-Job -Job $job -Keep -Erroraction SilentlyContinue -ErrorVariable jobErr
         $jobReason = $job.ChildJobs[0].JobStateInfo.Reason
@@ -222,7 +222,7 @@ function Build-Project {
             Remove-Item $_.FullName -Force -Recurse -ErrorAction SilentlyContinue -ProgressAction SilentlyContinue
         }
     }
-    
+
     # Clean cached NuGet packages
     if (Test-Path $nugetCachePath) {
         Get-ChildItem -Path $nugetCachePath -Recurse -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -ieq $packageName } | ForEach-Object {
@@ -293,7 +293,7 @@ function Build-Project {
                 }
             } -SpinnerState ([ref] $spinnerState) -ArgumentList @($csproj.FullName, $msbuildProps) | Out-Null
         }
-        
+
         $i++;
         Show-Loading -Message "(${i}/${count}) Building..." -Action {
             param($project, $bArgs)
@@ -315,4 +315,52 @@ function Build-Project {
 }
 
 
-Export-ModuleMember -Function Show-Loading, Build-Project
+function Reset-Solution {
+    <#
+    .SYNOPSIS
+        Cleans the solution by running `dotnet clean`.
+        
+    .DESCRIPTION
+        This function runs `dotnet clean` on the solution file to clean all
+        projects. It ensures that the environment
+        is reset before building or setting up the projects.
+        
+    .PARAMETER solutionPath
+        The path to the solution file (.sln) to clean.
+        
+    .INPUTS
+        [string] solutionPath
+        The path to the solution file (.sln) to clean.
+        
+    .EXAMPLE
+        PS C:\> Clean-Solution -solutionPath "C:\Path\To\Solution.sln"
+        Cleans the solution at "C:\Path\To\Solution.sln" by running `dotnet clean`.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string] $solutionPath
+    )
+
+    # Run clean on the solution file
+    if ($PSBoundParameters["Verbose"] -or $VerbosePreference -eq "Continue") {
+        dotnet clean $solutionPath --configuration Debug
+        dotnet clean $solutionPath --configuration Release
+        if ($LASTEXITCODE -ne 0) {
+            throw "dotnet clean failed with exit code $LASTEXITCODE"
+        }
+    } else {
+        $spinnerState = 0
+        Show-Loading -Message "Cleaning..." -Action {
+            param($solution)
+            dotnet clean $solution --configuration Debug
+            dotnet clean $solution --configuration Release
+            if ($LASTEXITCODE -ne 0) {
+                throw "dotnet clean failed with exit code $LASTEXITCODE"
+            }
+        } -SpinnerState ([ref] $spinnerState) -ArgumentList @($solutionPath) | Out-Null
+    }
+}
+
+Export-ModuleMember -Function Show-Loading, Build-Project, Reset-Solution

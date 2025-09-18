@@ -15,7 +15,7 @@ For full terms, see the LICENSE and NOTICE files in the project root.
 # Name: CatalystUI.NuGet.psm1
 # Author: FireController#1847
 # Date: 2025-08-24
-# Version: 1.1.0
+# Version: 1.1.1
 
 $config = Import-PowerShellDataFile "$PSScriptRoot/../Config.psd1"
 
@@ -37,7 +37,7 @@ function Get-NuGetRepository {
     #>
     [CmdletBinding()]
     param()
-    
+
     return Join-Path $HOME $config.NuGetDot
 }
 
@@ -59,7 +59,7 @@ function Get-CatalystNuGetRepository {
     #>
     [CmdletBinding()]
     param()
-    
+
     return Join-Path $HOME $config.CatalystNuGetDot
 }
 
@@ -81,7 +81,7 @@ function Get-NuGetCache {
     #>
     [CmdletBinding()]
     param()
-    
+
     return Join-Path $HOME ".nuget/packages"
 }
 
@@ -124,7 +124,7 @@ function Initialize-NuGetRepository {
     # Disable verbosity (NuGet seems to output a lot of info)
     $previousPreference = $VerbosePreference
     $VerbosePreference = 'SilentlyContinue'
-    
+
     try {
         # Ensure NuGet repository directory exists
         $nugetPath = Get-NuGetRepository
@@ -174,7 +174,7 @@ function Initialize-NuGetRepository {
         # Restore verbosity
         $VerbosePreference = $previousPreference
     }
-    
+
     # Return success
     return $true
 }
@@ -200,20 +200,20 @@ function Clear-NuGetRepository {
     #>
     [CmdletBinding()]
     param()
-    
+
     $nugetPath = Get-NuGetRepository
     if (Test-Path $nugetPath) {
         Write-Host "Clearing contents of local NuGet repository at: `e[32m$nugetPath`e[0m"
         Get-ChildItem -Path $nugetPath -Recurse -Force |
-            Where-Object {
-                # Always exclude dotfiles/folders
-                if ($IsWindows) {
-                    -not $_.Name.StartsWith('.') -and -not ($_.Attributes -band [IO.FileAttributes]::Hidden)
-                } else {
-                    -not $_.Name.StartsWith('.')
-                }
-            } |
-            Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+                Where-Object {
+                    # Always exclude dotfiles/folders
+                    if ($IsWindows) {
+                        -not $_.Name.StartsWith('.') -and -not ($_.Attributes -band [IO.FileAttributes]::Hidden)
+                    } else {
+                        -not $_.Name.StartsWith('.')
+                    }
+                } |
+                Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
     } else {
         Write-Host "Local NuGet repository does not exist at: `e[32m$nugetPath`e[0m"
         return $false
@@ -221,4 +221,59 @@ function Clear-NuGetRepository {
     return $true
 }
 
-Export-ModuleMember -Function Get-CatalystNuGetRepository, Get-NuGetRepository, Get-NuGetCache, Initialize-NuGetRepository, Clear-NuGetRepository
+function Remove-NuGetRepository {
+    <#
+    .SYNOPSIS
+        Clears the local NuGet repository directory, and then removes the NuGet source and config file.
+        
+    .DESCRIPTION
+        Deletes the entire local NuGet repository directory, removes the registered NuGet source,
+        and deletes the NuGet.Config file in the solution directory if it exists.
+        
+        Returns $true if the operation completes successfully, otherwise $false.
+        
+    .OUTPUTS
+        [bool]
+        $true if the operation completes successfully, otherwise $false.
+    
+    .EXAMPLE
+        PS C:\> Remove-NuGetRepository
+        Removing local NuGet repository at: `e[32mC:\Users\Username\.catalystui`e[0m
+        True
+    #>
+    [CmdletBinding()]
+    param()
+
+    $nugetPath = Get-NuGetRepository
+    if (Test-Path $nugetPath) {
+        Write-Host "Removing local NuGet repository at: `e[32m$nugetPath`e[0m"
+
+        # Clear the repository first
+        if (-not (Clear-NuGetRepository)) {
+            Write-Warning "Failed to clear NuGet repository contents. Aborting removal."
+            return $false
+        }
+
+        # Remove the package source
+        $nugetSource = $config.NuGetSource
+        $existingSource = Get-PackageSource -Name $nugetSource -ErrorAction SilentlyContinue
+        if ($existingSource) {
+            Write-Host "Unregistering local NuGet source: `e[32m$nugetSource`e[0m"
+            Unregister-PackageSource -Name $nugetSource -ErrorAction SilentlyContinue
+        }
+
+        # Delete the configuration file
+        $solution = Get-LocationSolution
+        $nugetConfigPath = Join-Path $solution "NuGet.Config"
+        if (Test-Path -Path $nugetConfigPath) {
+            Write-Host "Removing NuGet.Config at `e[32m$nugetConfigPath`e[0m"
+            Remove-Item -Path $nugetConfigPath -Force -ErrorAction SilentlyContinue
+        }
+    } else {
+        Write-Host "Local NuGet repository does not exist at: `e[32m$nugetPath`e[0m"
+        return $false
+    }
+    return $true
+}
+
+Export-ModuleMember -Function Get-CatalystNuGetRepository, Get-NuGetRepository, Get-NuGetCache, Initialize-NuGetRepository, Clear-NuGetRepository, Remove-NuGetRepository
